@@ -15,6 +15,9 @@ function App() {
   const genderRef = useRef(null);
   const phoneRef = useRef(null);
   const insert = () => {
+    if (genderRef.current === null) {
+      return;
+    }
     axios
       .post("http://localhost:8080/person", {
         name: nameRef.current.value,
@@ -28,16 +31,24 @@ function App() {
   };
   const delId = useRef(null);
   const deleteId = () => {
-    const url = `http://localhost:8080/person/${delId.current.value}`;
+    const url = `http://localhost:8080/person/${delId.current}`;
     axios.delete(url).then((res) => {
       setFlg(!flg);
     });
   };
   const putId = useRef(null);
+  const putGender = useRef(null);
+  const fnPut = (id, gender) => {
+    putId.current = id;
+    putGender.current = gender === "M" ? "F" : "M";
+    console.log(putId.current);
+    console.log(putGender.current);
+  };
   const updateId = () => {
     console.log(putId.current);
     const url = `http://localhost:8080/person/${putId.current}`;
-    axios.put(url, { gneder: "F" }).then((res) => {
+    axios.put(url, { gender: putGender.current }).then((res) => {
+      putGender.current = putGender.current === "M" ? "F" : "M";
       setFlg(!flg);
     });
   };
@@ -79,8 +90,26 @@ function App() {
         </div>
         <div>
           <label>
-            gender
-            <input ref={genderRef}></input>
+            남자
+            <input
+              type="radio"
+              name="inGender"
+              onChange={(e) => {
+                genderRef.current = e.target;
+              }}
+              value="M"
+            ></input>
+          </label>
+          <label>
+            여자
+            <input
+              type="radio"
+              name="inGender"
+              onChange={(e) => {
+                genderRef.current = e.target;
+              }}
+              value="F"
+            ></input>
           </label>
         </div>
         <div>
@@ -100,22 +129,35 @@ function App() {
       <hr />
       <h2>2-3번 문제</h2>
       <div>
-        <label>
-          delete id <input ref={delId}></input>
-        </label>
+        <div>delete id</div>
+        <div>
+          {list.map((item, index) => (
+            <label key={index}>
+              {item.id}
+              <input
+                type="radio"
+                onChange={(e) => {
+                  delId.current = e.target.value;
+                }}
+                value={item.id}
+                name="delId"
+              ></input>
+            </label>
+          ))}
+        </div>
         <button onClick={deleteId}>delete</button>
       </div>
       <hr />
       <h2>2-4번 문제</h2>
       <div>gender change id</div>
       <div>
-        {list.map((item, indeex) => (
-          <label key={indeex}>
+        {list.map((item, index) => (
+          <label key={index}>
             {item.id}
             <input
               type="radio"
               onChange={(e) => {
-                putId.current = e.target.value;
+                fnPut(e.target.value, item.gender);
               }}
               value={item.id}
               name="reGender"
